@@ -1,0 +1,26 @@
+#ifndef GLOBALS_H
+#define GLOBALS_H
+
+
+extern volatile float angle;
+extern volatile float angle2;
+extern volatile float position;
+extern volatile float currentAngle;
+extern volatile float prevAngle;
+extern volatile float prevAngle2;
+extern volatile int totalRev;
+extern volatile int totalRev2;
+extern volatile bool stepState;
+extern volatile bool direction;
+extern volatile float lastTime;
+extern volatile long presentTime;
+extern volatile float previouserror;
+extern volatile float integral;
+extern volatile float newsetpoint;
+extern volatile float dt;
+extern volatile float derivative;
+extern volatile float deadband;
+extern volatile float frequency;
+
+
+#endif
