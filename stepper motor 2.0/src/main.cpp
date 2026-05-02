@@ -137,92 +137,87 @@ void readEncoder(void *pvParameter){
 
 
 
+void IRAM_ATTR stepGenerator(){
+  stepState = !stepState;
+  digitalWrite(STEP1, stepState);
+}
+void IRAM_ATTR stepGenerator2(){
+  stepState2 = !stepState2;
+  digitalWrite(STEP2, stepState2);
+}
 
 
 
+// set target angle, directio and targettime in sec.
+void moveMotor(void *pvParameter){
+  //steps per degree = angle*1600/360
 
-
-// void IRAM_ATTR stepGenerator(){
-//   stepState = !stepState;
-//   digitalWrite(STEP1, stepState);
-// }
-// void IRAM_ATTR stepGenerator2(){
-//   stepState2 = !stepState2;
-//   digitalWrite(STEP2, stepState2);
-// }
-
-
-
-// // set target angle, directio and targettime in sec.
-// void moveMotor(void *pvParameter){
-//   //steps per degree = angle*1600/360
-
-//   //set direction HIGH OR LOW (HIGH= clockwise,LOW=anticlockwise)
-//   // int numSteps = 0;
-//   while (1)
-//   {
-//     double local_sp = 0;
-//     if(xSemaphoreTake(setpointMutex, SemaphoreTimeout)){
-//       local_sp = setpoint;
-//       xSemaphoreGive(setpointMutex);
+  //set direction HIGH OR LOW (HIGH= clockwise,LOW=anticlockwise)
+  // int numSteps = 0;
+  while (1)
+  {
+    double local_sp = 0;
+    if(xSemaphoreTake(setpointMutex, SemaphoreTimeout)){
+      local_sp = setpoint;
+      xSemaphoreGive(setpointMutex);
     
-//   }
+  }
   
 
-//     if (xSemaphoreTake(angleMutex, SemaphoreTimeout))
-//     {
-//       currentAngle = angle / 2;
-//       xSemaphoreGive(angleMutex);
-//     }
+    if (xSemaphoreTake(angleMutex, SemaphoreTimeout))
+    {
+      currentAngle = angle / 2;
+      xSemaphoreGive(angleMutex);
+    }
     
-//     if (xSemaphoreTake(positionMutex, SemaphoreTimeout))
-//     {
-//       positionError = local_sp - currentAngle;
-//       xSemaphoreGive(positionMutex);
-//     }
+    if (xSemaphoreTake(positionMutex, SemaphoreTimeout))
+    {
+      positionError = local_sp - currentAngle;
+      xSemaphoreGive(positionMutex);
+    }
     
-//     presentTime = micros();
-//     dt = (presentTime - lastTime)/ 1000000.0;
-//     derivative = 0;
-//     if (dt > 0){
-//       derivative = (positionError - previouserror)/dt;
-//     }
+    presentTime = micros();
+    dt = (presentTime - lastTime)/ 1000000.0;
+    derivative = 0;
+    if (dt > 0){
+      derivative = (positionError - previouserror)/dt;
+    }
     
-//      integral = integral+(positionError*dt);
+     integral = integral+(positionError*dt);
 
-//      if (integral > 1000)integral = 1000;
-//      if (integral < -1000)integral = -1000;
+     if (integral > 1000)integral = 1000;
+     if (integral < -1000)integral = -1000;
     
-//     output = (Kp * (positionError)) + (Ki * (integral)) + (Kd * (derivative)) ;
-//     previouserror = positionError;
-//     lastTime = presentTime;
+    output = (Kp * (positionError)) + (Ki * (integral)) + (Kd * (derivative)) ;
+    previouserror = positionError;
+    lastTime = presentTime;
 
-//     if (output < 0)
-//     {
-//       direction = 1;
-//     }
-//     else
-//     {
-//       direction = 0;
-//     }
+    if (output < 0)
+    {
+      direction = 1;
+    }
+    else
+    {
+      direction = 0;
+    }
 
-//     digitalWrite(DIR1, direction);
-//     output = constrain(output, -2000.0, 2000.0);
+    digitalWrite(DIR1, direction);
+    output = constrain(output, -2000.0, 2000.0);
 
-//     deadband = 0.1;
-//     if(fabs(positionError) < deadband){
-//       timerAlarmDisable(pulseTimer);
-//     } 
-//     else{
+    deadband = 0.1;
+    if(fabs(positionError) < deadband){
+      timerAlarmDisable(pulseTimer);
+    } 
+    else{
     
-//     frequency = 4000 - (fabs(output) / 2000.0) * (f_max - f_min);
-//     // Serial.printf("%f\t%f\t%f\t%f\t%f\n", currentAngle, positionError, output, frequency, integral);
-//     timerAlarmWrite(pulseTimer, (uint64_t)frequency, true);
-//     timerAlarmEnable(pulseTimer);
-//     vTaskDelay(pdMS_TO_TICKS(1));
-//     }
-//   }  
-// }
+    frequency = 4000 - (fabs(output) / 2000.0) * (f_max - f_min);
+    // Serial.printf("%f\t%f\t%f\t%f\t%f\n", currentAngle, positionError, output, frequency, integral);
+    timerAlarmWrite(pulseTimer, (uint64_t)frequency, true);
+    timerAlarmEnable(pulseTimer);
+    vTaskDelay(pdMS_TO_TICKS(1));
+    }
+  }  
+}
 
 
 
@@ -230,72 +225,72 @@ void readEncoder(void *pvParameter){
 
 
 
-// void moveMotor1(void *pvParameter){
-//   while (1)
-//   {
-//     double local_sp2 = 0;
-//     if(xSemaphoreTake(setpointMutex, SemaphoreTimeout)){
-//       local_sp2 = setpoint2;
-//       xSemaphoreGive(setpointMutex);
+void moveMotor1(void *pvParameter){
+  while (1)
+  {
+    double local_sp2 = 0;
+    if(xSemaphoreTake(setpointMutex, SemaphoreTimeout)){
+      local_sp2 = setpoint2;
+      xSemaphoreGive(setpointMutex);
 
    
-//   }
+  }
 
 
-//     if (xSemaphoreTake(angleMutex2, SemaphoreTimeout))
-//     {
-//       currentAngle2 = angle2 / 2;
-//       xSemaphoreGive(angleMutex2);
-//     }
+    if (xSemaphoreTake(angleMutex2, SemaphoreTimeout))
+    {
+      currentAngle2 = angle2 / 2;
+      xSemaphoreGive(angleMutex2);
+    }
     
-//     if (xSemaphoreTake(positionMutex2, SemaphoreTimeout))
-//     {
-//       positionError2 = local_sp2 - currentAngle2;
-//       xSemaphoreGive(positionMutex2);
-//     }
+    if (xSemaphoreTake(positionMutex2, SemaphoreTimeout))
+    {
+      positionError2 = local_sp2 - currentAngle2;
+      xSemaphoreGive(positionMutex2);
+    }
     
-//     float presentTime2 = micros();
-//     float dt2 = (presentTime2 - lastTime2)/ 1000000.0;
-//     float derivative2 = 0;
-//     if (dt2 > 0){
-//       derivative2 = (positionError2 - previouserror2)/dt;
-//     }
+    float presentTime2 = micros();
+    float dt2 = (presentTime2 - lastTime2)/ 1000000.0;
+    float derivative2 = 0;
+    if (dt2 > 0){
+      derivative2 = (positionError2 - previouserror2)/dt;
+    }
     
-//      integral2 = integral2+(positionError2*dt);
+     integral2 = integral2+(positionError2*dt);
 
-//      if (integral2 > 1000)integral2 = 1000;
-//      if (integral2 < -1000)integral2 = -1000;
+     if (integral2 > 1000)integral2 = 1000;
+     if (integral2 < -1000)integral2 = -1000;
     
-//     output2 = (Kp2 * (positionError2)) + (Ki2 * (integral2)) + (Kd2 * (derivative2)) ;
-//     previouserror2 = positionError2;
-//     lastTime2 = presentTime2;
+    output2 = (Kp2 * (positionError2)) + (Ki2 * (integral2)) + (Kd2 * (derivative2)) ;
+    previouserror2 = positionError2;
+    lastTime2 = presentTime2;
 
-//     if (output2 < 0)
-//     {
-//       direction = 1;
-//     }
-//     else
-//     {
-//       direction = 0;
-//     }
+    if (output2 < 0)
+    {
+      direction = 1;
+    }
+    else
+    {
+      direction = 0;
+    }
 
-//     digitalWrite(DIR2, direction);
-//     output2 = constrain(output2, -2000.0, 2000.0);
+    digitalWrite(DIR2, direction);
+    output2 = constrain(output2, -2000.0, 2000.0);
 
-//     float deadband1 = 0.1;
-//     if(fabs(positionError2) < deadband1){
-//       timerAlarmDisable(pulseTimer2);
-//     } 
-//     else{
+    float deadband1 = 0.1;
+    if(fabs(positionError2) < deadband1){
+      timerAlarmDisable(pulseTimer2);
+    } 
+    else{
     
-//     float frequency2 = 4000 - (fabs(output2) / 2000.0) * (f_max - f_min);
-//     // Serial.printf("%f\t%f\t%f\t%f\t%f\n", currentAngle, positionError, output, frequency, integral);
-//     timerAlarmWrite(pulseTimer2, (uint64_t)frequency2, true);
-//     timerAlarmEnable(pulseTimer2);
-//     vTaskDelay(pdMS_TO_TICKS(1));
-//     }
-//   }  
-// }
+    float frequency2 = 4000 - (fabs(output2) / 2000.0) * (f_max - f_min);
+    // Serial.printf("%f\t%f\t%f\t%f\t%f\n", currentAngle, positionError, output, frequency, integral);
+    timerAlarmWrite(pulseTimer2, (uint64_t)frequency2, true);
+    timerAlarmEnable(pulseTimer2);
+    vTaskDelay(pdMS_TO_TICKS(1));
+    }
+  }  
+}
 
 void Print(void *pvParameter){
   float local_angle = 0;
